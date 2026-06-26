@@ -72,13 +72,14 @@ class View {
     }
 
     renderListOptions(lists) {
-        const select = document.getElementById('createCardList');
-        if (!select) return;
+    const select = document.getElementById('createCardList');
+    if (!select) return;
 
-        select.innerHTML = lists
-            .map(({ id, name }) => `<option value="${id}">${name}</option>`)
-            .join('');
-    }
+    select.innerHTML = lists
+        .map(({ _id, id, name }) => `<option value="${_id || id}">${name}</option>`)
+        .join('');
+}
+
 
     clearCreateForm() {
         document.getElementById('createCardName').value = '';
@@ -247,13 +248,13 @@ class View {
     }
 
     populateEditListSelect(lists) {
-        const editListSelect = document.getElementById('editCardList');
-        if (editListSelect) {
-            editListSelect.innerHTML = lists
-                .map(({ id, name }) => `<option value="${id}">${name}</option>`)
-                .join('');
-        }
+    const editListSelect = document.getElementById('editCardList');
+    if (editListSelect) {
+        editListSelect.innerHTML = lists
+            .map(({ _id, id, name }) => `<option value="${_id || id}">${name}</option>`)
+            .join('');
     }
+}
 }
 
 export default new View();
