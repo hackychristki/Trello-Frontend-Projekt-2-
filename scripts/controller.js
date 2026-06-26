@@ -30,7 +30,7 @@ view.onCreateCard = async ({ name, desc, idList }) => {
         view.showView('overview');
     } catch (error) {
         console.error('Fehler:', error);
-        alert('Karte konnte nicht erstellt werden.');
+        
     }
 };
 
@@ -51,7 +51,7 @@ view.onEditCard = async ({ cardId, name, desc, idList }) => {
         console.log("✅ Karte erfolgreich aktualisiert");
     } catch (error) {
         console.error('Fehler beim Aktualisieren:', error);
-        alert('Karte konnte nicht aktualisiert werden.');
+        
     }
 };
 
@@ -89,7 +89,7 @@ view.onModalDelete = async (cardId) => {
         console.log("✅ Karte gelöscht");
     } catch (error) {
         console.error('Fehler beim Löschen:', error);
-        alert('Karte konnte nicht gelöscht werden.');
+        
     }
 };
 
@@ -151,7 +151,7 @@ if (loginForm) {
 
         } catch (error) {
             console.error(error);
-            alert(error.message || "Login fehlgeschlagen");
+            
         }
     });
 }
@@ -166,10 +166,10 @@ if (signupForm) {
 
         try {
             await model.signup({ name, email, password });
-            alert("✅ Account erfolgreich erstellt! Bitte melde dich an.");
+
             view.showView('login');
         } catch (error) {
-            alert(error.message || "Registrierung fehlgeschlagen");
+            
         }
     });
 }
