@@ -2,11 +2,7 @@
 import * as model from './model.js';
 import view from './view.js';
 
-const anmelden = document.getElementById("anmeldenB");
-const insertKey = document.getElementById("insertKey");
-const insertToken = document.getElementById("insertToken");
-
-// Hilfsfunktion: Karten mit Listennamen anreichern (nur im Controller)
+// Hilfsfunktion: Karten mit Listennamen anreichern
 function getCardsWithListNames(cards) {
     return cards.map(card => ({
         ...card,
@@ -15,9 +11,8 @@ function getCardsWithListNames(cards) {
 }
 
 // --- View Callbacks registrieren ---
-
 view.onSearch = (searchTerm) => {
-    model.state.currentPage = 1; // Bei neuer Suche immer von Seite 1 starten
+    model.state.currentPage = 1;
     const filtered = view.filterCards(model.state.cards, searchTerm);
     view.renderCards(
         getCardsWithListNames(filtered),
@@ -30,11 +25,7 @@ view.onCreateCard = async ({ name, desc, idList }) => {
     try {
         await model.createCard({ name, desc, idList });
         model.state.currentPage = 1;
-        view.renderCards(
-        getCardsWithListNames(model.state.cards),
-        model.state.currentPage,
-        model.state.cardsPerPage
-);
+        view.renderCards(getCardsWithListNames(model.state.cards), model.state.currentPage, model.state.cardsPerPage);
         view.clearCreateForm();
         view.showView('overview');
     } catch (error) {
@@ -46,14 +37,18 @@ view.onCreateCard = async ({ name, desc, idList }) => {
 view.onEditCard = async ({ cardId, name, desc, idList }) => {
     try {
         await model.updateCard(cardId, { name, desc, idList });
+        
         model.state.currentPage = 1;
+        
+        // Neu rendern mit aktualisierten Listennamen
         view.renderCards(
-        getCardsWithListNames(model.state.cards),
-        model.state.currentPage,
-        model.state.cardsPerPage
-);
+            getCardsWithListNames(model.state.cards),
+            model.state.currentPage,
+            model.state.cardsPerPage
+        );
+        
         view.showView('overview');
-        console.log("✅ Karte aktualisiert");
+        console.log("✅ Karte erfolgreich aktualisiert");
     } catch (error) {
         console.error('Fehler beim Aktualisieren:', error);
         alert('Karte konnte nicht aktualisiert werden.');
@@ -61,33 +56,35 @@ view.onEditCard = async ({ cardId, name, desc, idList }) => {
 };
 
 view.onModalEdit = (cardId) => {
-    const card = model.state.cards.find(({ id }) => id === cardId);
+    console.log("✏️ onModalEdit aufgerufen mit ID:", cardId);
 
-    if (card) {
-        const { name, desc, idList } = card;
+    if (!cardId) return;
 
-        document.getElementById('editCardName').value = name;
-        document.getElementById('editCardDesc').value = desc || '';
+    const card = model.state.cards.find(c => c._id === cardId || c.id === cardId);
+    if (!card) return;
 
-        view.populateEditListSelect(model.state.lists);
-        const editCardList = document.getElementById('editCardList');
-        editCardList.value = idList;
+    document.getElementById('editCardName').value = card.name || '';
+    document.getElementById('editCardDesc').value = card.desc || '';
+
+    view.populateEditListSelect(model.state.lists);
+    const editCardList = document.getElementById('editCardList');
+    if (editCardList) {
+        editCardList.value = card.idList;
         editCardList.dataset.cardId = cardId;
-
-        view.closeCardModal();
-        view.showView('edit');
     }
+
+    view.closeCardModal();
+    view.showView('edit');
 };
 
 view.onModalDelete = async (cardId) => {
+    if (!cardId) return;
+    if (!confirm('Karte wirklich löschen?')) return;
+
     try {
         await model.deleteCard(cardId);
         model.state.currentPage = 1;
-        view.renderCards(
-        getCardsWithListNames(model.state.cards),
-        model.state.currentPage,
-        model.state.cardsPerPage
-);
+        view.renderCards(getCardsWithListNames(model.state.cards), model.state.currentPage, model.state.cardsPerPage);
         view.closeCardModal();
         console.log("✅ Karte gelöscht");
     } catch (error) {
@@ -97,71 +94,91 @@ view.onModalDelete = async (cardId) => {
 };
 
 view.onPageChange = (page) => {
-    // Neue Seite im Model-State speichern
     model.state.currentPage = page;
-
-    // Suchfeld-Inhalt berücksichtigen: falls der User gerade sucht,
-    // soll die Pagination auf den gefilterten Karten arbeiten
     const searchTerm = document.getElementById('searchInput')?.value || '';
-    const cards = searchTerm
-        ? view.filterCards(model.state.cards, searchTerm)
-        : model.state.cards;
-
-    // View mit neuer Seite neu rendern
-    view.renderCards(
-        getCardsWithListNames(cards),
-        model.state.currentPage,
-        model.state.cardsPerPage
-    );
+    const cards = searchTerm ? view.filterCards(model.state.cards, searchTerm) : model.state.cards;
+    view.renderCards(getCardsWithListNames(cards), model.state.currentPage, model.state.cardsPerPage);
 };
 
-// --- Login ---
+// ===================== AUTH =====================
 
-anmelden.addEventListener("click", async function() {
-    const { value: apiKeyValue } = insertKey;
-    const { value: tokenValue } = insertToken;
-    const apiKey = apiKeyValue.trim();
-    const token = tokenValue.trim();
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const showSignupLink = document.getElementById('showSignup');
+const showLoginLink = document.getElementById('showLogin');
 
-    if (!apiKey || !token) {
-        alert("Bitte gib sowohl API-Key als auch Token ein!");
-        return;
-    }
+// Toggle Login / Signup
+if (showSignupLink) {
+    showSignupLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        view.showView('signup');
+    });
+}
+if (showLoginLink) {
+    showLoginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        view.showView('login');
+    });
+}
 
-    localStorage.setItem('trello_api_key', apiKey);
-    localStorage.setItem('trello_token', token);
-    model.setCredentials(apiKey, token);
+// Login
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
 
-    console.log("✅ Login erfolgreich");
+        try {
+            const data = await model.login({ email, password });
+            localStorage.setItem('token', data.token);
 
-    view.showView('main');
-    document.getElementById('overview').classList.add('active');
+            console.log("✅ Login erfolgreich");
+            view.showView('main');
+            document.getElementById('overview').classList.add('active');
 
-    setTimeout(async () => {
-        await model.loadCards();
-        await model.loadLists();
-        view.renderListOptions(model.state.lists);
-        model.state.currentPage = 1;
-        view.renderCards(
-        getCardsWithListNames(model.state.cards),
-        model.state.currentPage,
-        model.state.cardsPerPage
-);
-    }, 200);
-});
+            // Daten laden
+            await model.loadLists();
+            await model.loadCards();
 
-// --- Beim Laden gespeicherte Werte einfügen ---
+            console.log("=== NACH LOGIN ===");
+            console.log("Anzahl Karten im State:", model.state.cards.length);
 
-window.addEventListener('load', () => {
-    const savedApiKey = localStorage.getItem('trello_api_key');
-    const savedToken = localStorage.getItem('trello_token');
+            // WICHTIG: Jetzt rendern!
+            const cardsWithNames = getCardsWithListNames(model.state.cards);
+            view.renderCards(cardsWithNames, model.state.currentPage, model.state.cardsPerPage);
+            
+            view.renderListOptions(model.state.lists);
 
-    insertKey.value = savedApiKey || '';
-    insertToken.value = savedToken || '';
+        } catch (error) {
+            console.error(error);
+            alert(error.message || "Login fehlgeschlagen");
+        }
+    });
+}
 
-    if (savedApiKey && savedToken) {
-        model.setCredentials(savedApiKey, savedToken);
-    }
-});
+// Signup
+if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+
+        try {
+            await model.signup({ name, email, password });
+            alert("✅ Account erfolgreich erstellt! Bitte melde dich an.");
+            view.showView('login');
+        } catch (error) {
+            alert(error.message || "Registrierung fehlgeschlagen");
+        }
+    });
+}
+
+// Logout
+window.logout = function() {
+    localStorage.removeItem('token');
+    view.showView('login');
+    console.log("👋 Abgemeldet");
+};
 
 console.log("Trello Controller initialized");

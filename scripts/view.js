@@ -228,15 +228,19 @@ class View {
     }
 
     openCardModal(card) {
-        const { id, name, desc, listName, idList } = card;
+    const { _id, id, name, desc, listName, idList } = card;
+    const realId = _id || id;   // Beide Möglichkeiten abdecken
 
-        document.getElementById('modalCardName').textContent = name;
-        document.getElementById('modalCardDesc').textContent = desc || 'Keine Beschreibung';
-        document.getElementById('modalCardList').textContent = `Liste: ${listName || idList}`;
+    console.log("🃏 Modal geöffnet für Karte:", realId);
 
-        document.getElementById('cardModal').dataset.cardId = id;
-        document.getElementById('cardModal').classList.add('active');
-    }
+    document.getElementById('modalCardName').textContent = name;
+    document.getElementById('modalCardDesc').textContent = desc || 'Keine Beschreibung';
+    document.getElementById('modalCardList').textContent = `Liste: ${listName || idList}`;
+
+    const modal = document.getElementById('cardModal');
+    modal.dataset.cardId = realId;        // ← WICHTIG
+    modal.classList.add('active');
+}
 
     closeCardModal() {
         document.getElementById('cardModal').classList.remove('active');

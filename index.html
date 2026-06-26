@@ -17,18 +17,42 @@
 
     <div class="login-box">
       <h2>Anmelden</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input id="loginEmail" type="email" placeholder="deine@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Passwort</label>
+          <input id="loginPassword" type="password" placeholder="Passwort" required>
+        </div>
+        <button type="submit" class="full-btn">Anmelden</button>
+      </form>
+      <p>Noch kein Account? <a href="#" id="showSignup">Jetzt registrieren</a></p>
+    </div>
+  </div>
 
-      <div class="form-group">
-        <label>API Key</label>
-        <input id="insertKey" type="text" placeholder="Dein Trello API Key">
-      </div>
+  <div id="signup" class="view">
+    <h1 class="center-title">Trello Card Manager</h1>
 
-      <div class="form-group">
-        <label>Token</label>
-        <input id="insertToken" type="text" placeholder="Dein Trello Token">
-      </div>
-
-      <button id="anmeldenB" class="full-btn">Anmelden</button>
+    <div class="login-box">
+      <h2>Registrieren</h2>
+      <form id="signupForm">
+        <div class="form-group">
+          <label>Name</label>
+          <input id="signupName" type="text" placeholder="Vor- und Nachname" required>
+        </div>
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input id="signupEmail" type="email" placeholder="deine@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Passwort</label>
+          <input id="signupPassword" type="password" placeholder="Mindestens 8 Zeichen" required>
+        </div>
+        <button type="submit" class="full-btn">Account erstellen</button>
+      </form>
+      <p>Bereits registriert? <a href="#" id="showLogin">Zum Login</a></p>
     </div>
   </div>
 
