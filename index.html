@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trello Card Manager</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style_modal.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- LOGIN VIEW -->
+  <div id="login" class="view active">
+    <h1 class="center-title">Trello Card Manager</h1>
+
+    <div class="login-box">
+      <h2>Anmelden</h2>
+
+      <div class="form-group">
+        <label>API Key</label>
+        <input id="insertKey" type="text" placeholder="Dein Trello API Key">
+      </div>
+
+      <div class="form-group">
+        <label>Token</label>
+        <input id="insertToken" type="text" placeholder="Dein Trello Token">
+      </div>
+
+      <button id="anmeldenB" class="full-btn">Anmelden</button>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="main" class="view">
+
+    <header>
+      <div class="logo">Trello Card Manager</div>
+
+      <nav>
+        <button onclick="showView('overview')">Übersicht</button>
+        <button onclick="showView('create')">Neue Karte</button>
+        <button onclick="showView('login')">Abmelden</button>
+      </nav>
+    </header>
+
+    <!-- OVERVIEW -->
+    <div id="overview" class="view active">
+      <h1>Karten Übersicht</h1>
+
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="🔍 Karten suchen..."
+      >
+
+      <div id="cards-container">
+        <!-- Karten kommen per JS -->
+      </div>
+
+      <!-- CARD DETAIL MODAL -->
+      <div id="cardModal" class="card-modal">
+        <div class="card-modal-content">
+          <button class="modal-close" onclick="closeCardModal()">×</button>
+          <h2 id="modalCardName">Kartentitel</h2>
+          <p id="modalCardDesc">Beschreibung...</p>
+          <small id="modalCardList">Liste: -</small>
+          <div class="modal-actions">
+            <button id="modalEditBtn" class="btn-edit">✏ Bearbeiten</button>
+            <button id="modalDeleteBtn" class="btn-delete">🗑 Löschen</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h2>Alle Karten</h2>
+        <button onclick="showView('create')">+ Neue Karte</button>
+      </div>
+    </div>
+
+    <!-- DETAIL -->
+    <div id="detail" class="view">
+
+      <button class="back-btn" onclick="showView('overview')">
+        ← Zurück zur Übersicht
+      </button>
+
+      <h1 id="detail-title">Karten Titel</h1>
+
+      <div class="detail-box">
+        <p>
+          <strong>Beschreibung:</strong><br>
+          <span id="detail-desc">Beschreibung wird geladen...</span>
+        </p>
+
+        <p>
+          <strong>Liste:</strong>
+          <span id="detail-list">-</span>
+        </p>
+
+        <p>
+          <strong>Fälligkeitsdatum:</strong>
+          <span id="detail-due">-</span>
+        </p>
+
+        <p>
+          <strong>Trello-Link:</strong>
+          <a id="detail-url" href="#" target="_blank">
+            Öffnen in Trello
+          </a>
+        </p>
+      </div>
+
+      <div class="action-buttons">
+        <button class="warning-btn" onclick="showView('edit')">
+          ✏ Bearbeiten
+        </button>
+
+        <button class="danger-btn">
+          🗑 Löschen
+        </button>
+      </div>
+    </div>
+
+    <!-- CREATE -->
+    <div id="create" class="view">
+      <h1>Neue Karte erstellen</h1>
+
+      <div class="form-group">
+        <label>Name *</label>
+        <input id="createCardName" type="text" placeholder="Kartenname">
+      </div>
+
+      <div class="form-group">
+        <label>Beschreibung</label>
+        <textarea id="createCardDesc" rows="4" placeholder="Beschreibung..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Liste</label>
+        <select id="createCardList"></select>
+      </div>
+
+      <div class="action-buttons">
+        <button type="button" onclick="showView('overview')">Abbrechen</button>
+        <button id="createCardSave" type="button">💾 Speichern</button>
+      </div>
+    </div>
+
+    <!-- EDIT -->
+    <div id="edit" class="view">
+      <h1>Karte bearbeiten</h1>
+
+      <button class="back-btn" onclick="showView('overview')">← Zurück</button>
+
+      <div class="form-group">
+        <label>Name *</label>
+        <input id="editCardName" type="text" placeholder="Kartenname">
+      </div>
+
+      <div class="form-group">
+        <label>Beschreibung</label>
+        <textarea id="editCardDesc" rows="4" placeholder="Beschreibung..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Liste</label>
+        <select id="editCardList"></select>
+      </div>
+
+      <div class="action-buttons">
+        <button onclick="showView('overview')">Abbrechen</button>
+        <button id="editCardSave" type="button">
+          💾 Änderungen speichern
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module" src="scripts/controller.js"></script>
+
+</body>
+</html>
